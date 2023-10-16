@@ -1,0 +1,154 @@
+*** Important note is I have tested these algorithms using different test versions during my coding, some were taken as fraction from the provided tests (meaning I reduced the number of 2000 to a different count 400,500,1000 or changed the Capacity allowed in order to see how this will affect the algorithms and if they give the expected answer - I did not see big diversions from the tests provided therefore I have not explicitely made a new table or pushed any of them).
+If needed I can explain what I did and why I did it.
+
+I have also tried smaller tests so I can check if the greedy algorithm works as intended and returns what I was expecting. (Meaning I have tried smaller tests to see if the input is what we would expect so I can manually check them). It works for the provided tests as well.
+
+I have also tested the frac_bound() function separately to see if it works as expected. (This was before the two lines were released so I can make sure it calculates correctly so I can use it in BnB). Again using smaller subsets of the provided tests with changed values and weights so I can manually check if the result is what I expect.
+
+I tried using different longer tests for BnB (mixed of easy.txt and some more added by me) where the ratios are not as close and as expected it was faster as for BnB this allowed more prunning. I later realized this is the reason why its fast for easy.200.4.txt but not for the hard.200.11.txt one. Here it is important to note that the items count is also important for the performance.
+
+For the DP I tried different options and concluded that its performance depends on the count of items and the capacity, as its complexity is number of items*capacity. This hold for the required memory as well.
+
+Dynamic Programming
+===================
+
+Why does the 0/1 Knapsack Problem have the three necessary properties for dynamic programming?
+
+1. Simple Subproblems
+
+2. Subproblem Optimality - item is either used or not
+
+3. Subproblem Overlap - we need to solve it for n-1 so we can solve it for n
+
+- In order to solve the Problem for n items - we can pick one item and remove it and see what solution we can reach with the rest for weight < Capacity and for weight < Capacity - weight(removed item)
+
+After that we can pick the better option and recursively reach one item. We also know that if two solutions have the same choice of items with the same weight then the one with lower value does not participate in the final solution.
+
+Greedy
+======
+
+1.  Why is a greedy approach not necessarily optimal for 0/1 Knapsack?
+
+- Because it is likely to pack less weight than the capacity provided. For this algorithm we will always take the item with highest value/weight ratio first, which does not mean that we use the capacity optimally.
+
+An example - If capacity is 6 greedy will only pack item A and have a final value of 6 and we can also see that the optimal solution is to pack items B and C and we will get final value of 8 instead of 6.
+
+item  value size value/size
+ A      6    4      1.5
+ B      4    3      1.33
+ C      4    3      1.33
+ 
+2.  Is the greedy approach optimal for the Fractional Knapsack problem?  Explain your reasoning.
+
+- The basic idea of the greedy approach is to calculate the ratio value/weight for each item and sort the item on basis of this ratio. Then take the item with the highest ratio and add them until we can’t add the next item as a whole and at the end add the next item as much as we can (a fraction of it). Which will always be the optimal solution to this problem, as it will provide the optimal final value of the knapsack.
+
+Testing
+=======
+
+1.  Why can't you use full enumeration for large instances?
+
+- Because the complexity of the algorithm is 2^n
+
+Suppose one evaluation of a solutions takes 1 microsecond, how large an instance do you think can be practically solved in an hour?  Justify your answer.
+
+- 1 hour = 3 600 000 000 microseconds
+- We need to find log base 2 of 3 600 000 000 microseconds because of the complexity
+- We get around 31-32
+
+2.  Fill in the table below for each test set, noting whether or not you killed the algorithm.  Result should indicate whether the correct optimal solution has been found.  This should be 377 for easy.20.1.txt, 4077 for easy.200.4.txt, 126968 for hard1.200.11.txt and 1205259 for hard1.2000.1.txt.  You can generate this output using test.sh if you wish.
+
+===========================================
+Running on easy.20.1.txt for 5 seconds
+===========================================
+
+Algorithm |      Optimal Value       | Time Taken  | Result
+----------------------------------------------------------------
+enum      | 377                      | 0m1.417s    | Yes
+bnb       | 377                      | 0m0.429s    | Yes
+dp        | 377                      | 0m0.318s    | Yes
+greedy    | 368                      | 0m0.343s    | ?
+
+
+===========================================
+Running on easy.200.4.txt for 5 seconds
+===========================================
+
+Algorithm |      Optimal Value       | Time Taken  | Result
+----------------------------------------------------------------
+enum      | 568                      | 0m5.072s    | ?
+bnb       | 4077                     | 0m1.905s    | Yes
+dp        | 4077                     | 0m0.557s    | Yes
+greedy    | 4075                     | 0m0.462s    | ?
+
+
+===========================================
+Running on hard1.200.11.txt for 60 seconds
+===========================================
+
+Algorithm |      Optimal Value       | Time Taken  | Result
+----------------------------------------------------------------
+enum      | 29845                    | 1m0.062s    | ?
+bnb       | 127534                   | 1m0.065s    | ?
+dp        | 126968                   | 0m3.799s    | Yes
+greedy    | 126579                   | 0m0.532s    | ?
+
+
+===========================================
+Running on hard1.2000.1.txt for 60 seconds
+===========================================
+
+Algorithm |      Optimal Value       | Time Taken  | Result
+----------------------------------------------------------------
+enum      | 25273                    | 1m0.084s    | ?
+bnb       | 1207627                  | 1m0.091s    | ?
+dp        | -                        | 0m12.892s    | No
+greedy    | 1205167                  | 0m1.054s    | ?
+
+
+So for instance if you are running the program using the bnb algorithm on the hard1.200.11.txt and kill the program after it has been running for 1 minute and the best solution at that point has 126756 in the knapsack then you should note that you killed the program and write
+
+bnb    126756	1 min  incorrect (killed)
+
+If on the other hand you were running the program using the bnb algorithm on the easy.20.1.txt and it completed after 1 second with a value of 377 then you should write
+
+bnb    377	1 second correct 
+
+Note that some knapsack implementations generate candidate solutions as they go so you can get the program to print its current best solution, while other implementations do not produce a candidate solution until the end.
+
+
+3.  Which instances does greedy solve optimally? - none of the given ones
+                                                 - It will solve optimally instances whose optimal solutions consist of the elements with best ratio value/weigth
+
+Does dynamic programming work on all instances and why/why not? - It does not work for hard1.2000.1.txt for example
+                                                                - Gives the error "Exception in thread "main" java.lang.OutOfMemoryError: Java heap space"
+                                                                - n^2
+
+
+Does branch-and-bound come to a stop on all instances in reasonable time? - No, for hard1.200.11.txt and hard1.2000.1.txt it does not.
+                                                                          - Worst complexity is 2^n
+
+4.  Can you explain WHY the hard1 instances are easy or hard (cause problems) for
+    i) greedy - both of them are easy and it is fast - linear complexity
+
+    ii) branch-and-bound - both of them are hard and it is slow, because of the number of options we have to consider
+                         - there are repeating objects and the same and very close in value ratios
+                         - the bounds are the same and we cannot prune as many options so the complexity is closer to the enumeration one (2^n)
+                         - this can be seen when we print the sorted hard1.2000.1.txt ratios the algorithm uses
+ 
+    iii) dynamic programming - hard1.200.11.txt(easy) - It can create large enough table and it is fast      
+                             - hard1.2000.1.txt(hard) - it runs out of memory, can't create large enough table
+
+5.  The airline has problems of size 500-2000 of similar type to the hard1 instances.  Which algorithms do you recommend using and why?
+
+We can't use enum as it is too slow because of its complexity which is 2^n. This is the reason why the results from test.sh are like this. We would not pick this algorithm for such problems of size 500-2000.
+
+We can see that greedy gives a lower value than optimal solution in all test.sh cases, it gives quick approximate answer (as with the hard1.2000.1.txt instance). We can also see that it is a very fast algorithm. So we would pick that if we want really quick but approximate answers.
+
+Also DP will probably give the error java.lang.OutOfMemoryError on most OS. It is a fast algorithm, but requires a lot of spare memory. If we were to pick this algorithm it will probably require dedicated OS. We would pick this algorithm if we want quick answers and have a lot of spare memory space.
+
+BnB is best for space and accuracy, however it is slow as shown in the examples above from test.sh. It will give a good approximate example after a while, however it will need a lot of time to run. So we would pick this algorithm if we are not short on time.
+
+Overall, I believe that we should recommend DP if they can provide it with enough space, as it is fast and gives good answers. It will provide them with answers a lot quicker than BnB, which I was considering as the other option here.
+
+What should they do in the case the algorihm runs out of time? - In case they use BnB they can use the best solution they have found before the time runs out. However, if they are using DP as recommended and gave it enough spare memory it is very unlikely for this scenerio that they will run out of time. For Dp it is more likely that they run out of space.
+
